@@ -1,5 +1,5 @@
 //
-// Created by jim on 30/6/2016.
+// Created by Nick Tsiogkas on 30/6/2016.
 //
 
 #include "mdp_minefield.h"
@@ -52,6 +52,12 @@ void MDPMinefield::InitStates() {
 }
 
 void MDPMinefield::InitGeneral() {
+  long millis = (long)get_time_second() * 1000;
+  long range = (long)pow((double)10, (int)9);
+  Globals::config.root_seed =
+      (unsigned int)(millis - (millis / range) * range);
+  unsigned seed = Seeds::Next();
+  Random::RANDOM = Random(seed);
   start_pos_ = Coord(0, 0);
   end_pos_ = Coord(size_ - 1, size_ - 1);
   grid_.SetAllValues(-1);
@@ -65,6 +71,8 @@ void MDPMinefield::InitGeneral() {
     grid_(pos) = i;
     mine_pos_.push_back(pos);
   }
+  InitStates();
+  InitializeTransitions();
 }
 
 bool MDPMinefield::Step(State &state, double rand_num, int action, double &reward, OBS_TYPE &obs) {
@@ -89,11 +97,38 @@ int MDPMinefield::NextState(int s, int a) const {
   if (pos == end_pos_)
     return s;
 
-  pos += Compass::DIRECTIONS[a];
+  Coord next_pos = pos + Compass::DIRECTIONS[a];
+  if (grid_.Inside(next_pos)) {
+    // If it is inside perform the move and return the next state.
+    return CoordToIndex(next_pos);
+  } else {
+    // If not remain at the same state.
+    return CoordToIndex(pos);
+  }
 }
 
 double MDPMinefield::Reward(int s, int a) const {
-  return 0;
+  // What reward will you get if you take acton a in state s
+  Coord pos = IndexToCoord(s);
+
+  if (pos == end_pos_)
+    return 0;
+
+  Coord next_pos = pos + Compass::DIRECTIONS[a];
+
+  if (grid_.Inside(next_pos)) {
+    if (next_pos == end_pos_) {
+      return 100;
+    } else {
+      if (grid_(next_pos) >= 0 && grid_(next_pos) < num_mines_)
+        return -100;
+      else
+        return -1;
+    }
+  }
+  else {
+    return -1000;
+  }
 }
 
 State *MDPMinefield::CreateStartState(std::string type) const {
@@ -110,6 +145,30 @@ std::vector<State *> MDPMinefield::NoisyInitialParticleSet() const {
 
 Belief *MDPMinefield::InitialBelief(const State *start, std::string type) const {
   return NULL;
+}
+
+void MDPMinefield::PrintWorld(std::ostream &out) const {
+  out << std::endl;
+  for (int x = 0; x < size_ + 2; x++)
+    out << "# ";
+  out << std::endl;
+  for (int y = size_ - 1; y >= 0; y--) {
+    out << "# ";
+    for (int x = 0; x < size_; x++) {
+      Coord pos(x, y);
+      int rock = grid_(pos);
+      if (rock >= 0 && rock < num_mines_)
+        out << rock << "X";
+      else if(rock == num_mines_)
+        out << rock << "S";
+      else
+        out << ". ";
+    }
+    out << "#" << std::endl;
+  }
+  for (int x = 0; x < size_ + 2; x++)
+    out << "# ";
+  out << std::endl;
 }
 
 void MDPMinefield::PrintState(const State &state, std::ostream &out) const {
@@ -144,9 +203,22 @@ int MDPMinefield::NumStates() const {
   return grid_.xsize() * grid_.ysize();
 }
 
-const State *MDPMinefield::GetState(int index) const {
-  return NULL;
+
+int MDPMinefield::NumActions() const {
+  return 4;
 }
+
+
+const State *MDPMinefield::GetState(int index) const {
+  const State* s;
+  return s;
+}
+
+
+int MDPMinefield::GetAction(const State &state) const {
+  return 0;
+}
+
 
 int MDPMinefield::GetIndex(const State *state) const {
   return 0;
@@ -207,11 +279,11 @@ void MDPMinefield::InitializeTransitions() {
 }
 
 Coord MDPMinefield::IndexToCoord(int pos) const {
-  return despot::Coord();
+  return despot::Coord(pos % grid_.xsize(), pos / grid_.xsize());
 }
 
 int MDPMinefield::CoordToIndex(Coord c) const {
-  return 0;
+  return c.y * grid_.xsize() + c.x;
 }
 
 }

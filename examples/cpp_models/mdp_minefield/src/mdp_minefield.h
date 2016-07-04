@@ -67,6 +67,7 @@ class MDPMinefield: public MDP, public StateIndexer, public StatePolicy {
   std::vector<State*> NoisyInitialParticleSet() const;
   Belief* InitialBelief(const State* start, std::string type = "PARTICLE") const;
 
+  void PrintWorld(std::ostream &out) const;
   void PrintState(const State& state, std::ostream& out = std::cout) const;
   void PrintBelief(const Belief& belief, std::ostream& out = std::cout) const;
   void PrintObs(const State& state, OBS_TYPE observation, std::ostream& out = std::cout) const;
@@ -77,8 +78,10 @@ class MDPMinefield: public MDP, public StateIndexer, public StatePolicy {
   double StepReward(const Belief* belief, int action) const;
 
   int NumStates() const;
+  int NumActions() const;
   const State* GetState(int index) const;
   int GetIndex(const State* state) const;
+  int GetAction(const State& state) const;
 
   int GetRobPosIndex(const State* state) const;
   Coord GetRobPos(const State* state) const;
