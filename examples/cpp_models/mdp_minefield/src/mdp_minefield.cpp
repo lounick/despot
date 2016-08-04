@@ -53,10 +53,18 @@ void MDPMinefield::InitStates() {
 
 void MDPMinefield::InitGeneral() {
   long millis = (long)get_time_second() * 1000;
+
+  std::cout << "millis: " << millis << std::endl;
+
   long range = (long)pow((double)10, (int)9);
+  std::cout << "range: " << range << std::endl;
+
   Globals::config.root_seed =
       (unsigned int)(millis - (millis / range) * range);
+  std::cout << "root_seed: " << (unsigned int)(millis - (millis / range) * range) << std::endl;
+  Seeds::root_seed((unsigned int)(millis - (millis / range) * range));
   unsigned seed = Seeds::Next();
+  std::cout << "seed: " << seed << std::endl;
   Random::RANDOM = Random(seed);
   start_pos_ = Coord(0, 0);
   end_pos_ = Coord(size_ - 1, size_ - 1);
