@@ -19,6 +19,12 @@ namespace despot {
 
 class CooperativeMinefieldState: public State {
  public:
+  Coord agent_pos_;
+  std::vector<Coord> mine_pos_;
+  std::vector<double> mine_prob_;
+  std::vector<Coord> mine_comm_;
+  std::vector<Coord> searched_pos_;
+
   CooperativeMinefieldState();
   CooperativeMinefieldState(int _state_id);
 
