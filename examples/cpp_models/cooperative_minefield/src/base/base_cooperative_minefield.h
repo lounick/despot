@@ -27,29 +27,38 @@ class CooperativeMinefieldState: public State {
 
   CooperativeMinefieldState();
   CooperativeMinefieldState(int _state_id);
+  CooperativeMinefieldState(Coord agent_pos, std::vector<Coord> mine_pos,
+                            std::vector<double> mine_prob,
+                            std::vector<Coord> mine_comm,
+                            std::vector<Coord> searched_pos);
 
   std::string text() const;
 };
+
+/* =============================================================================
+ * CooperativeMinefieldBelief class
+ * =============================================================================*/
 
 /* =============================================================================
  * BaseCooperativeMinefield class
  * =============================================================================*/
 
 class BaseCooperativeMinefield: public MDP, public BeliefMDP, public StateIndexer, public StatePolicy {
-  friend class CooperativeMinefieldENTScenarioLowerBound;
-  friend class CooperativeMinefieldMMAPStateScenarioLowerBound;
-  friend class CooperativeMinefieldEastScenarioLowerBound;
-  friend class CooperativeMinefieldParticleUpperBound1;
-  friend class CooperativeMinefieldParticleUpperBound2;
-  friend class CooperativeMinefieldMDPParticleUpperBound;
-  friend class CooperativeMinefieldApproxParticleUpperBound;
-  friend class CooperativeMinefieldEastBeliefPolicy;
-  friend class CooperativeMinefieldMDPBeliefUpperBound;
-  friend class CooperativeMinefieldPOMCPPrior;
+//  friend class CooperativeMinefieldENTScenarioLowerBound;
+//  friend class CooperativeMinefieldMMAPStateScenarioLowerBound;
+//  friend class CooperativeMinefieldEastScenarioLowerBound;
+//  friend class CooperativeMinefieldParticleUpperBound1;
+//  friend class CooperativeMinefieldParticleUpperBound2;
+//  friend class CooperativeMinefieldMDPParticleUpperBound;
+//  friend class CooperativeMinefieldApproxParticleUpperBound;
+//  friend class CooperativeMinefieldEastBeliefPolicy;
+//  friend class CooperativeMinefieldMDPBeliefUpperBound;
+//  friend class CooperativeMinefieldPOMCPPrior;
 
  protected:
   Grid<int> grid_;
   std::vector<Coord> mine_pos_;
+  std::vector<Coord> searched_pos_;
   int size_, num_mines_;
   Coord start_pos_;
 
