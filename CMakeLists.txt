@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(despot)
 
 set(BINARY_INSTALL_PATH "bin" CACHE PATH "Binary install path")
-set(LIBRARY_INSTALL_PATH "lib" CACHE PATH "Library install path")
+set(LIBRARY_INSTALL_PATH "unit_tests/lib" CACHE PATH "Library install path")
 set(INCLUDE_INSTALL_PATH "include" CACHE PATH "Include install path")
 set(CONFIG_INSTALL_PATH "${LIBRARY_INSTALL_PATH}/${PROJECT_NAME}/cmake")
 
@@ -53,6 +53,8 @@ add_library("${PROJECT_NAME}" SHARED
 target_link_libraries("${PROJECT_NAME}"
   ${TinyXML_LIBRARIES}
 )
+
+add_subdirectory(unit_tests)
 
 if(DESPOT_BUILD_EXAMPLES)
   add_subdirectory(examples/cpp_models/adventurer)
