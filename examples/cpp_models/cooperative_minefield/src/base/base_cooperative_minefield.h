@@ -68,8 +68,8 @@ class BaseCooperativeMinefield: public MDP, public BeliefMDP, public StateIndexe
   std::vector<CooperativeMinefieldState *> states_;
 
  protected:
-  void InitStates();
   void InitGeneral();
+  void InitStates();
   bool GetObservation(double rand_num, const CooperativeMinefieldState &minestate, int mine) const;
 
   std::vector<std::vector<std::vector<State> > > transition_probabilities_; //TODO: Check the size and the dimentions.
@@ -107,15 +107,13 @@ class BaseCooperativeMinefield: public MDP, public BeliefMDP, public StateIndexe
   inline double GetMaxReward() const {
     return 10;
   }
-  ScenarioUpperBound *CreateScenarioUpperBound(std::string name = "DEFAULT",
-                                               std::string particle_bound_name = "DEFAULT") const;
+  ScenarioUpperBound *CreateScenarioUpperBound(std::string name = "DEFAULT", std::string particle_bound_name = "DEFAULT") const;
   BeliefUpperBound *CreateBeliefUpperBound(std::string name = "DEFAULT") const;
 
   inline ValuedAction GetMinRewardAction() const {
     return ValuedAction(A_COMMUNICATE + 1, 0);
   }
-  ScenarioLowerBound *CreateScenarioLowerBound(std::string name = "DEFAULT",
-                                               std::string particle_bound_name = "DEFAULT") const;
+  ScenarioLowerBound *CreateScenarioLowerBound(std::string name = "DEFAULT", std::string particle_bound_name = "DEFAULT") const;
   BeliefLowerBound *CreateBeliefLowerBound(std::string name = "DEFAULT") const;
 
   POMCPPrior *CreatePOMCPPrior(std::string name = "DEFAULT") const;

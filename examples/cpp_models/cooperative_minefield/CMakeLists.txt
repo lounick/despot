@@ -5,7 +5,7 @@ include_directories(
 )
 
 add_executable("${PROJECT_NAME}_cooperative_minefield"
-        src/base/base_cooperative_minefield.cpp
+        #src/base/base_cooperative_minefield.cpp
         src/cooperative_minefield/cooperative_minefield.cpp
         src/cooperative_minefield/main.cpp
         )
