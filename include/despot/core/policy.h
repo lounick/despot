@@ -94,10 +94,10 @@ private:
 	std::vector<double> action_probs_;
 
 public:
-	RandomPolicy(const DSPOMDP* model, ParticleLowerBound* ParticleLowerBound,
+	RandomPolicy(const DSPOMDP* model, ParticleLowerBound* bound,
 		Belief* belief = NULL);
 	RandomPolicy(const DSPOMDP* model, const std::vector<double>& action_probs,
-		ParticleLowerBound* ParticleLowerBound,
+		ParticleLowerBound* bound,
 		Belief* belief = NULL);
 
 	int Action(const std::vector<State*>& particles, RandomStreams& streams,
