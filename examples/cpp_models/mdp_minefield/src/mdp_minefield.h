@@ -53,6 +53,7 @@ class MDPMinefield: public MDP, public StateIndexer, public StatePolicy {
   };
  public:
   MDPMinefield(int size, int num_mines);
+  MDPMinefield(int size, std::vector<Coord> mines);
   MDPMinefield();
 
   bool Step(State &state, double rand_num, int action, double &reward, OBS_TYPE &obs);

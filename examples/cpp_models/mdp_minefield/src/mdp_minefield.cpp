@@ -22,15 +22,19 @@ Coord MinefieldState::getPos() {
   return pos_;
 }
 
-
 void MinefieldState::setPos(Coord pos) {
   pos_ = pos;
 }
 
-
 MDPMinefield::MDPMinefield(int size, int num_mines) : grid_(size, size),
                                                       size_(size),
                                                       num_mines_(num_mines) {
+  InitGeneral();
+}
+
+MDPMinefield::MDPMinefield(int size, std::vector<Coord> mines) : grid_(size, size), size_(size) {
+  num_mines_ = mines.size();
+  mine_pos_ = mines;
   InitGeneral();
 }
 
@@ -52,17 +56,17 @@ void MDPMinefield::InitStates() {
 }
 
 void MDPMinefield::InitGeneral() {
-  long millis = (long)get_time_second() * 1000;
+  long millis = (long) get_time_second() * 1000;
 
   std::cout << "millis: " << millis << std::endl;
 
-  long range = (long)pow((double)10, (int)9);
+  long range = (long) pow((double) 10, (int) 9);
   std::cout << "range: " << range << std::endl;
 
   Globals::config.root_seed =
-      (unsigned int)(millis - (millis / range) * range);
-  std::cout << "root_seed: " << (unsigned int)(millis - (millis / range) * range) << std::endl;
-  Seeds::root_seed((unsigned int)(millis - (millis / range) * range));
+      (unsigned int) (millis - (millis / range) * range);
+  std::cout << "root_seed: " << (unsigned int) (millis - (millis / range) * range) << std::endl;
+  Seeds::root_seed((unsigned int) (millis - (millis / range) * range));
   unsigned seed = Seeds::Next();
   std::cout << "seed: " << seed << std::endl;
   Random::RANDOM = Random(seed);
@@ -71,13 +75,19 @@ void MDPMinefield::InitGeneral() {
   grid_.SetAllValues(-1);
   grid_(start_pos_) = num_mines_;
   grid_(end_pos_) = num_mines_;
-  for (int i = 0; i < num_mines_; i++) {
-    Coord pos;
-    do {
-      pos = Coord(Random::RANDOM.NextInt(size_), Random::RANDOM.NextInt(size_));
-    } while (grid_(pos) >= 0);
-    grid_(pos) = i;
-    mine_pos_.push_back(pos);
+  if (mine_pos_.size() == 0) {
+    for (int i = 0; i < num_mines_; ++i) {
+      Coord pos;
+      do {
+        pos = Coord(Random::RANDOM.NextInt(size_), Random::RANDOM.NextInt(size_));
+      } while (grid_(pos) >= 0);
+      grid_(pos) = i;
+      mine_pos_.push_back(pos);
+    }
+  } else {
+    for (int i = 0; i < num_mines_; ++i) {
+      grid_(mine_pos_[i]) = i;
+    }
   }
   InitStates();
   InitializeTransitions();
@@ -133,8 +143,7 @@ double MDPMinefield::Reward(int s, int a) const {
       else
         return -1;
     }
-  }
-  else {
+  } else {
     return -1000;
   }
 }
@@ -167,7 +176,7 @@ void MDPMinefield::PrintWorld(std::ostream &out) const {
       int rock = grid_(pos);
       if (rock >= 0 && rock < num_mines_)
         out << rock << "X";
-      else if(rock == num_mines_)
+      else if (rock == num_mines_)
         out << rock << "S";
       else
         out << ". ";
@@ -211,22 +220,18 @@ int MDPMinefield::NumStates() const {
   return grid_.xsize() * grid_.ysize();
 }
 
-
 int MDPMinefield::NumActions() const {
   return 4;
 }
 
-
 const State *MDPMinefield::GetState(int index) const {
-  const State* s;
+  const State *s;
   return s;
 }
-
 
 int MDPMinefield::GetAction(const State &state) const {
   return 0;
 }
-
 
 int MDPMinefield::GetIndex(const State *state) const {
   return 0;
