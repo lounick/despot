@@ -11,18 +11,20 @@
 #include <despot/util/coord.h>
 #include <despot/util/grid.h>
 
+#include <mdp_minefield.h>
+
 namespace despot {
 
 /* =============================================================================
  * CooperativeMinefieldState class
  * =============================================================================*/
 
-class CooperativeMinefieldState: public State {
+class CooperativeMinefieldState : public State {
  public:
   Coord agent_pos_;
   std::vector<Coord> mine_pos_;
   std::vector<double> mine_prob_;
-  std::vector<Coord> mine_comm_;
+  std::vector<Coord> mine_comm_; // TODO: Maybe turn it into a map for easier lookup. Or have also an uncomm mine vector
   std::vector<Coord> searched_pos_;
 
   CooperativeMinefieldState();
@@ -41,10 +43,11 @@ class CooperativeMinefieldState: public State {
  * ==============================================================================*/
 
 class CooperativeMinefield;
-class CooperativeMinefieldBelief: public ParticleBelief {
+class CooperativeMinefieldBelief : public ParticleBelief {
  protected:
   const CooperativeMinefield *cooperativeMinefield_;
  public:
+  static int num_particles;
   CooperativeMinefieldBelief(std::vector<State *> particles, const DSPOMDP *model, Belief *prior =
   NULL);
   void Update(int action, OBS_TYPE obs);
@@ -54,7 +57,7 @@ class CooperativeMinefieldBelief: public ParticleBelief {
  * CooperativeMinefield class
  * =============================================================================*/
 
-class CooperativeMinefield: public DSPOMDP {
+class CooperativeMinefield : public DSPOMDP {
  public:
   bool Step(State &state, double rand_num, int action, double &reward, OBS_TYPE &obs) const;
   int NumActions() const;
@@ -123,27 +126,34 @@ class CooperativeMinefield: public DSPOMDP {
     A_SENSE = 2,
     A_WAIT = 3
   };
+  std::vector<std::string> actionString{"Communicate", "Search", "Sense", "Wait"};
 
-  //TODO: Add observation type enum
+  enum {
+    O_NONE = 0,
+    O_AGENT_POS = 1,
+    O_MINE_POS = 2,
+    O_MINE_PROB = 3
+  };
 
   CooperativeMinefield(std::string map);
   CooperativeMinefield(int size, int mines);
 
   Grid<int> grid_;
+  MDPMinefield *movePolicy;
   std::vector<Coord> mine_pos_;
   std::vector<Coord> searched_pos_;
   int size_, num_mines_;
-  Coord start_pos_;
+  Coord start_pos_, end_pos_;
   double reward_clear_level_, reward_move_, reward_die_, reward_search_, reward_communicate_;
   CooperativeMinefieldState mine_state_;
   std::vector<CooperativeMinefieldState *> states_;
-  Coord NextPos(const Coord& from, int dir) const;
+  Coord NextPos(const Coord &from, int dir) const;
  private:
   void InitGeneral();
   void InitStates();
   bool GetObservation(double rand_num, const CooperativeMinefieldState &minestate, int mine) const;
 
-  std::vector<std::vector<std::vector<State> > > transition_probabilities_; //TODO: Check the size and the dimentions.
+  std::vector<std::vector<std::vector<State> > > transition_probabilities_; //TODO: Check the size and the dimensions.
   std::vector<std::vector<double> > alpha_vectors_; // For blind policy
   mutable std::vector<ValuedAction> mdp_policy_;
 
