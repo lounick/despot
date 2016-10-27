@@ -24,7 +24,7 @@ class CooperativeMinefieldState : public State {
   Coord agent_pos_;
   std::vector<Coord> mine_pos_;
   std::vector<double> mine_prob_;
-  std::vector<Coord> mine_comm_; // TODO: Maybe turn it into a map for easier lookup. Or have also an uncomm mine vector
+  std::vector<Coord> mine_comm_;
   std::vector<Coord> searched_pos_;
 
   CooperativeMinefieldState();
@@ -104,9 +104,9 @@ class CooperativeMinefield : public DSPOMDP {
 //  const State *GetState(int index) const;
 //  int GetIndex(const State *state) const;
 
-  inline int GetAction(const State &tagstate) const {
-    return 0;
-  }
+//  inline int GetAction(const State &tagstate) const {
+//    return 0;
+//  }
 
 //  int GetRobPosIndex(const State *state) const;
 //  Coord GetRobPos(const State *state) const;
@@ -140,24 +140,26 @@ class CooperativeMinefield : public DSPOMDP {
 
   Grid<int> grid_;
   MDPMinefield *movePolicy;
+  std::vector<ValuedAction> p;
+  mutable std::vector<std::pair> actions;
   std::vector<Coord> mine_pos_;
   std::vector<Coord> searched_pos_;
+  std::vector<Coord> mine_uncomm_;
   int size_, num_mines_;
   Coord start_pos_, end_pos_;
   double reward_clear_level_, reward_move_, reward_die_, reward_search_, reward_communicate_;
+  double comms_error_rate_;
   CooperativeMinefieldState mine_state_;
   std::vector<CooperativeMinefieldState *> states_;
   Coord NextPos(const Coord &from, int dir) const;
  private:
   void InitGeneral();
   void InitStates();
-  bool GetObservation(double rand_num, const CooperativeMinefieldState &minestate, int mine) const;
+  int GetObservation(double rand_num, const CooperativeMinefieldState &minestate, int action_idx) const;
 
   std::vector<std::vector<std::vector<State> > > transition_probabilities_; //TODO: Check the size and the dimensions.
   std::vector<std::vector<double> > alpha_vectors_; // For blind policy
   mutable std::vector<ValuedAction> mdp_policy_;
-
-  int MakeObservations(const CooperativeMinefieldState &state) const;
 
   void InitializeTransitions();
   Coord IndexToCoord(int pos) const;
