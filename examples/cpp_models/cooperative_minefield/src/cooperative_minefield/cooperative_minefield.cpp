@@ -195,25 +195,56 @@ CooperativeMinefield::CooperativeMinefield(int size, int mines) : grid_(size, si
   // InitStates();
 }
 
-bool CooperativeMinefield::Step(State &state, double rand_num, int action, double &reward, OBS_TYPE &obs) const {
+bool CooperativeMinefield::Step(State &state, double rand_num, int action_idx, double &reward, OBS_TYPE &obs) const {
   /*
    * FIXME: Add all the functionality
    * This is the step function used to show the game progression over time. The two team members operate one after the
    * other taking the optimal action according to their planning algorithms. We assume that the round lasts enough for
    * communication to be performed and the action to be executed. The following list of steps describes the game sequence.
    *
-   * 1. Sensing agent queries for the optimal action. Or maybe he gets it from the function definition.
+   * 1. Sensing agent queries for the optimal action. Or maybe he gets it from the function definition. DONE
    * 2. Gets the action and executes.
-   * 3. Gets some observation and updates it's belief.
+   * 3. Gets some observation and updates it's belief and state.
    * 4. If the action was communication and was successful the moving agent updates its policy.
    * 5. The moving agent chooses the best action based on its state.
    * 6. It performs the action.
    * 7. The team gets reward based on the actions.
    */
+  CooperativeMinefieldState s = static_cast<CooperativeMinefieldState &>(state);
+  int action = actions[action_idx].first;
+  Coord cell = actions[action_idx].second;
+
+  obs = GetObservation(rand_num, s, action_idx);
+
+  switch (obs){
+    case O_AGENT_POS:
+      // Successfully communicated a mine. Update lists and agent position.
+      break;
+    case O_MINE_POS:
+      // Found a mine. Add it to mines.
+      break;
+    case O_MINE_PROB:
+      // Imporved a mine classification outcome.
+      break;
+    case O_NONE:
+      // Got Nothing.
+      break;
+  }
+
+  p = movePolicy->policy();
+  int move_action = p[CoordToIndex(s.agent_pos_)].action;
+
   return false;
 }
+
 int CooperativeMinefield::NumActions() const {
-  return 4;
+  // Clear action vector
+  actions.clear();
+  //For each non communicated mine insert a communicate action
+  for (int i = 0; i < mine_uncomm_.size(); ++i)
+    actions.push_back(std::make_pair(A_COMMUNICATE, mine_uncomm_[i]));
+  // TODO: Add actions for sensing and searching
+  return actions.size();
 }
 
 double CooperativeMinefield::ObsProb(OBS_TYPE obs, const State &state, int action) const {
