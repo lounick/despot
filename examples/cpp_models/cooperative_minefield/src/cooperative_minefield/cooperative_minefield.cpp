@@ -482,12 +482,29 @@ Coord CooperativeMinefield::IndexToCoord(int pos) const {
 int CooperativeMinefield::CoordToIndex(Coord c) const {
   return c.y * grid_.xsize() + c.x;
 }
-bool CooperativeMinefield::GetObservation(double rand_num, const CooperativeMinefieldState &minestate, int mine) const {
-  // FIXME: Decide how you make observation. It is based on each action you take. Also we need only one function.
-  return false;
-}
-int CooperativeMinefield::MakeObservations(const CooperativeMinefieldState &state) const {
-  // FIXME: Decide how you make observation. It is based on each action you take. Also we need only one function.
+
+int CooperativeMinefield::GetObservation(double rand_num,
+                                         const CooperativeMinefieldState &minestate,
+                                         int action_idx) const {
+
+  int action = actions[action_idx].first;
+  switch (action) {
+    case A_COMMUNICATE:
+      if (rand_num < comms_error_rate_)
+        return O_NONE;
+      else
+        return O_AGENT_POS;
+    case A_SENSE:
+      break; //TODO: Implement it as well. Initial application doesn't have any doubt of mines. Maybe has to do with
+      // the sensor sensitivity.
+    case A_SEARCH:
+      break; //TODO: Use Poisson distribution for mine discovery. For now search is NOT implemented.
+      /*
+       * There should be a fixed sensor probability of discovering a mine if it actually exists there.
+       * Also should check for false positives. I.E. present a mine where there is none.
+       */
+    case A_WAIT:return O_NONE;
+  }
   return 0;
 }
 
