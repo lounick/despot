@@ -132,6 +132,10 @@ CooperativeMinefieldBelief::CooperativeMinefieldBelief(std::vector<State *> part
 }
 
 void CooperativeMinefieldBelief::Update(int action, OBS_TYPE obs) {
+  /*
+   * FIXME: This handles only specific actions (i.e. only four defined actions here). Not complex ones. Same for
+   * LocalMove. I may have to refactor.
+   */
   history_.Add(action, obs);
   std::vector<State *> updated;
   double reward;
@@ -297,7 +301,7 @@ ParticleLowerBound *CooperativeMinefield::CreateParticleLowerBound(std::string n
   if (name == "TRIVIAL") {
     return new TrivialParticleLowerBound(this);
   } else if (name == "LEGAL" || name == "DEFAULT") {
-    return new PocmanLegalParticleLowerBound(this);
+    return new CMLegalParticleLowerBound(this);
   } else {
     std::cerr << "Unsupported base lower bound: " << name << std::endl;
     exit(1);
@@ -310,9 +314,9 @@ CooperativeMinefield::CreateScenarioLowerBound(std::string name, std::string par
   if (name == "TRIVIAL") {
     return new TrivialParticleLowerBound(this);
   } else if (name == "LEGAL") {
-    return new PocmanLegalParticleLowerBound(this);
+    return new CMLegalParticleLowerBound(this);
   } else if (name == "SMART" || name == "DEFAULT") {
-    return new PocmanSmartPolicy(this,
+    return new PocmanSmartPolicy(this, //FIXME
                                  CreateParticleLowerBound(particle_bound_name));
   } else if (name == "RANDOM") {
     return new RandomPolicy(this,
@@ -433,6 +437,9 @@ Coord CooperativeMinefield::NextPos(const Coord &from, int dir) const {
 }
 
 void CooperativeMinefield::InitGeneral() {
+
+  // TODO: Initialise variables.
+
   start_pos_ = Coord(0, 0);
   end_pos_ = Coord(size_ - 1, size_ - 1);
   grid_.SetAllValues(-1);
@@ -443,6 +450,7 @@ void CooperativeMinefield::InitGeneral() {
     } while (grid_(pos) >= 0 && ((pos.x != 0 || pos.y != 0) && ((pos.x != size_ - 1 || pos.y != size_ - 1))));
     grid_(pos) = i;
     mine_pos_.push_back(pos);
+    mine_uncomm_.push_back(pos);
   }
 
   bool GridSearched = true;
@@ -456,7 +464,11 @@ void CooperativeMinefield::InitGeneral() {
     searched_pos_.push_back(Coord(0, 0));
     searched_pos_.push_back(Coord(size_ - 1, size_ - 1));
   }
+  NumActions();
   movePolicy = new MDPMinefield(size_, 0); //Initially he doesn't know of any mines.
+  movePolicy->ComputeOptimalPolicyUsingVI();
+  p = movePolicy->policy();
+
 }
 
 void CooperativeMinefield::InitializeTransitions() {
